@@ -1,0 +1,3 @@
+{
+  "connection_string": "mongodb://zb:123456@localhost:27017/_log"
+}

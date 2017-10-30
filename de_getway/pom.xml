@@ -1,0 +1,117 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>design</artifactId>
+        <groupId>com.zb</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>de_getway</artifactId>
+    <packaging>jar</packaging>
+
+    <name>de_getway</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!--ssh配置-->
+        <ssh.userName>zhangbo</ssh.userName>
+        <ssh.pwd>zb215723,</ssh.pwd>
+        <ssh.scp.url>192.168.1.102</ssh.scp.url>
+        <ssh.scp.directory>/home/zhangbo/File</ssh.scp.directory>
+        <ssh.exec.command>sh /home/zhangbo/File/run.sh start</ssh.exec.command>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.zb</groupId>
+            <artifactId>de_handler</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--fat.jar打包-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.zb.main.Startup</mainClass>
+                                    <!--<Main-Class>io.vertx.core.Launcher</Main-Class>-->
+                                    <!--<Main-Verticle>name.quanke.study.vertx.first.MyFirstVerticle</Main-Verticle>-->
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--ssh远程部署插件-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>upload-deploy</id>
+                        <!-- 运行package打包的同时运行upload-single和sshexec -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>upload-single</goal>
+                            <goal>sshexec</goal>
+                        </goals>
+                        <configuration>
+                            <fromFile>${project.build.directory}/${project.artifactId}-${project.parent.version}.${project.packaging}</fromFile>
+                            <url>scp://${ssh.userName}:${ssh.pwd}@${ssh.scp.url}${ssh.scp.directory}</url>
+                            <commands>
+                                <!-- 杀死原来的进程 -->
+                                <command>pkill -f ${project.artifactId}-${project.parent.version}.${project.packaging}</command>
+                                <command>${ssh.exec.command}</command>
+                            </commands>
+                            <displayCommandOutputs>true</displayCommandOutputs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--禁用对resources的修改限制-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>p12</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.html</include>
+                    <include>**/*.css</include>
+                    <include>**/*.js</include>
+                    <include>**/*.png</include>
+                    <include>**/*.jpg</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>
