@@ -15,6 +15,7 @@
         <module>Test</module>
         <module>de_tcpServer</module>
         <module>de_tcpClient</module>
+        <module>de_mqtt</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -25,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mysql.conn.version>5.1.30</mysql.conn.version>
         <jdk.version>1.8</jdk.version>
-        <vertx.version>3.4.2</vertx.version>
+        <vertx.version>3.5.0</vertx.version>
         <commons.lang3.version>3.3.2</commons.lang3.version>
         <log4j2.version>2.6.2</log4j2.version>
         <slf4j.version>1.7.21</slf4j.version>
@@ -229,6 +230,11 @@
             <version>${vertx.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-mqtt</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
     </dependencies>
 
 
