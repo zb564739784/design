@@ -230,6 +230,7 @@
             <version>${vertx.version}</version>
         </dependency>
 
+        <!--mqtt服务器-->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-mqtt</artifactId>
