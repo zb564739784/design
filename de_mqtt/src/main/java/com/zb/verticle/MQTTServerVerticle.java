@@ -84,6 +84,7 @@ public class MQTTServerVerticle extends AbstractVerticle {
                         }
                         // ack the subscriptions request
                         endpoint.unsubscribeAcknowledge(unsubscribe.messageId());
+                        mqttEndpoints.remove(endpoint);
                     });
 
                     // handling ping from client
@@ -92,16 +93,19 @@ public class MQTTServerVerticle extends AbstractVerticle {
                         System.out.println("Ping received from client");
                     });
 
+
                     // handling disconnect message
                     endpoint.disconnectHandler(v -> {
 
                         System.out.println("Received disconnect from client");
+                        mqttEndpoints.remove(endpoint);
                     });
 
                     // handling closing connection
                     endpoint.closeHandler(v -> {
 
                         System.out.println("Connection closed");
+                        mqttEndpoints.remove(endpoint);
                     });
 
                     // handling incoming published messages

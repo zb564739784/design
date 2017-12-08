@@ -1,5 +1,6 @@
 package com.zb.main;
 
+import com.zb.verticle.HttpServerVerticle;
 import com.zb.verticle.MQTTServerVerticle;
 import io.vertx.core.Vertx;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,7 @@ public class Startup {
 
                         }
                     });
+        Vertx.vertx().deployVerticle(HttpServerVerticle.class.getName());
 
     }
 }
