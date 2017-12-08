@@ -1,0 +1,31 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Good Thymes Virtual Grocery</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="pragram" content="no-cache">
+</head>
+
+<body>
+
+<p th:text="${welcome}">Welcome to our grocery store!</p>
+
+<table>
+    <tr>
+        <td>序号</td>
+        <td>名字</td>
+        <td>密码</td>
+        <td>排序</td>
+        <td>部门序号</td>
+    </tr>
+    <tr th:each="u,iterStat:${uList}">
+        <td th:text="${iterStat.count}">1</td>
+        <td th:text="${u.userName}">测试</td>
+        <td th:text="${u.password}">111111</td>
+        <td th:text="${u.sort}">1</td>
+        <td th:text="${u.dId}">1</td>
+    </tr>
+</table>
+</body>
+
+</html>
