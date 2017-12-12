@@ -2,10 +2,12 @@ package com.zb.common.verticle;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.mail.MailClient;
 import io.vertx.ext.mail.MailConfig;
+import io.vertx.ext.mail.MailMessage;
 import io.vertx.ext.mail.StartTLSOptions;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.client.WebClient;
@@ -75,8 +77,8 @@ public class BaseClientVerticle extends AbstractVerticle {
         } catch (IOException e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=jdbcIn)
+        } finally {
+            if (null != jdbcIn)
                 jdbcIn.close();
         }
 
@@ -111,8 +113,8 @@ public class BaseClientVerticle extends AbstractVerticle {
         } catch (IOException e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=redisIn)
+        } finally {
+            if (null != redisIn)
                 redisIn.close();
         }
 
@@ -125,11 +127,11 @@ public class BaseClientVerticle extends AbstractVerticle {
             Properties config = new Properties();
             config.load(kafkaIn);
             producer = KafkaProducer.create(vertx, config);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=kafkaIn)
+        } finally {
+            if (null != kafkaIn)
                 kafkaIn.close();
         }
 
@@ -144,13 +146,13 @@ public class BaseClientVerticle extends AbstractVerticle {
 
             if (!mongoConf.equals("")) {
                 JsonObject json = new JsonObject(mongoConf);
-                mongoClient = MongoClient.createShared(vertx,json);
+                mongoClient = MongoClient.createShared(vertx, json);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=mongoIn)
+        } finally {
+            if (null != mongoIn)
                 mongoIn.close();
         }
 
@@ -161,15 +163,15 @@ public class BaseClientVerticle extends AbstractVerticle {
         InputStream confIn = BaseClientVerticle.class.getResourceAsStream("/conf.properties");
         String conf = "";//jdbc连接配置
         try {
-            if (null !=confIn) {
-                properties=new Properties();
+            if (null != confIn) {
+                properties = new Properties();
                 properties.load(confIn);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=confIn)
+        } finally {
+            if (null != confIn)
                 confIn.close();
         }
 
@@ -183,15 +185,15 @@ public class BaseClientVerticle extends AbstractVerticle {
 
             if (!webCiientConf.equals("")) {
                 JsonObject json = new JsonObject(webCiientConf);
-                webClient = WebClient.create(vertx,new WebClientOptions().setConnectTimeout(json.getInteger("timeout"))
+                webClient = WebClient.create(vertx, new WebClientOptions().setConnectTimeout(json.getInteger("timeout"))
                         .setDefaultPort(json.getInteger("port")).setMaxPoolSize(json.getInteger("maxPoolSize"))
                         .setDefaultHost(json.getString("host")));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=webClientIn)
+        } finally {
+            if (null != webClientIn)
                 webClientIn.close();
         }
 
@@ -206,13 +208,13 @@ public class BaseClientVerticle extends AbstractVerticle {
 
             if (!excludePathConf.equals("")) {
                 JsonObject json = new JsonObject(excludePathConf);
-                excludePathList=json.getJsonArray("exclude_path").getList();
+                excludePathList = json.getJsonArray("exclude_path").getList();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=excludePathIn)
+        } finally {
+            if (null != excludePathIn)
                 excludePathIn.close();
         }
 
@@ -226,11 +228,11 @@ public class BaseClientVerticle extends AbstractVerticle {
             kfkconfig.load(consumerkfkIn);
             consumer = KafkaConsumer.create(vertx, kfkconfig);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=excludePathIn)
+        } finally {
+            if (null != excludePathIn)
                 excludePathIn.close();
         }
 
@@ -251,16 +253,46 @@ public class BaseClientVerticle extends AbstractVerticle {
             config.setPassword(mainConfig.getProperty("password"));
             config.setMaxPoolSize(100);
             mailClient = MailClient.createNonShared(vertx, config);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             startFuture.failed();
-        }finally {
-            if(null!=excludePathIn)
+        } finally {
+            if (null != excludePathIn)
                 excludePathIn.close();
         }
 
 
         startFuture.complete();
+    }
+
+
+    public static void main(String[] args) {
+        Vertx vertx = Vertx.vertx();
+        MailConfig config = new MailConfig();
+        config.setHostname("smtp.163.com");
+        config.setPort(25);
+        config.setStarttls(StartTLSOptions.REQUIRED);
+        config.setUsername("zb564739784@163.com");
+        config.setPassword("zb430201360302");
+        config.setMaxPoolSize(100);
+        MailClient mailClient = MailClient.createShared(vertx, config);
+        //TODO 邮箱通知
+        vertx.executeBlocking(res -> {
+            mailClient.sendMail(new MailMessage().setTo("564739784@qq.com")
+                    .setFrom("hello<zb564739784@163.com>")
+                    .setText("nihao").setSubject("异常日志报警告"), rs -> {
+                if (rs.failed())
+                    res.fail(rs.cause());
+                else
+                    res.complete();
+            });
+        },as->{
+            if(as.failed()){
+                as.cause().printStackTrace();
+            }else{
+                System.out.println(">>>>send email success");
+            }
+        });
     }
 
 }
