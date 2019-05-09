@@ -4,5 +4,6 @@
   "driverClassName": "com.mysql.jdbc.Driver",
   "username": "root",
   "password": "123456",
-  "maximumPoolSize": 30
+  "maximumPoolSize": 30,
+  "minimumIdle":2
 }
